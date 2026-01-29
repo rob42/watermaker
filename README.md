@@ -1,8 +1,8 @@
-Ultrasonic Anemometer
+Watermaker
 
-Connects to an Aliexpress Ultrasonic Anemometer via modbus, converts it to NMEA2000 and sends on n2k network.
+Connects to a watermaker decorated with temp and pressure sensors, and checks they stay within safe params. If not it shuts down the watermaker.
 
-Also provides a web page that shows apparent wind direction and speed, and an experimental implementation of Signal K over zenoh peer to peer messaging.
+Also provides a web page that shows operational parameters, and an experimental implementation of Signal K over zenoh peer to peer messaging.
 
 https://zenoh.io/
 
