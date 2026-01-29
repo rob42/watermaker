@@ -8,12 +8,15 @@
  */
 
 #define NODENAME "watermaker"
-#define ESP32_BOOST_TEMP_PIN GPIO_NUM_21 // one-wire temp sensor for boost pump
-#define ESP32_HP_TEMP_PIN GPIO_NUM_20 // one-wire temp sensor for hp pump
+#define ESP32_RELAY_PIN GPIO_NUM_21// turn watermaker on or off
+#define ESP32_BOOST_TEMP_PIN GPIO_NUM_20 // one-wire temp sensor for boost pump
+#define ESP32_HP_TEMP_PIN GPIO_NUM_10 // one-wire temp sensor for hp pump
 #define ESP32_PRE_FILTER_PRESSURE_PIN GPIO_NUM_0  // for low pressure pre filter
 #define ESP32_POST_FILTER_PRESSURE_PIN GPIO_NUM_1  // for low pressure post filter
 #define ESP32_POST_MEMBRANE_PRESSURE_PIN GPIO_NUM_3  // for low pressure post filter
 #define ESP32_TDI_PIN GPIO_NUM_4  // for tdi measurement
+
+#define ESP32_RELAY_PIN 21// turn watermaker on or off
 
 #define LED_BLUE 8 // blue LED pin
 
@@ -33,9 +36,9 @@ double preFilterPressure = 0.0;
 double postFilterPressure = 0.0;
 double postMembranePressure = 0.0;
 double tdi = 0.0;
-
+bool running = false;
 // Set latest data (boost T, hp T, prefilter P, post filter P, post membrane P, tdi v )
-void SetData()
+void setData()
 {
 
   // also expose to webserver sensor map 
@@ -46,15 +49,21 @@ void SetData()
   webServerNode.setSensorData("postFilterPressure", postFilterPressure);
   webServerNode.setSensorData("postMembranePressure", postMembranePressure);
   webServerNode.setSensorData("tdi", tdi);
+  webServerNode.setSensorData("running", running);
 
   //setup values for zenoh
-  readings["watermaker"]["main"]["boostPump"]["temperature"] = boostTemp;
-  readings["watermaker"]["main"]["highPressurePump"]["temperature"] = hpTemp;
-  readings["watermaker"]["main"]["preFilterPressure"] = preFilterPressure;
-  readings["watermaker"]["main"]["postFilterPressure"] = postFilterPressure;
-  readings["watermaker"]["main"]["preMembranePressure"] = postFilterPressure;
-  readings["watermaker"]["main"]["postMembranePressure"] = postMembranePressure;
-  readings["watermaker"]["main"]["productSalinity"] = tdi;
+  baseReadings["watermaker"]["main"]["boostPump"]["temperature"] = boostTemp;
+  baseReadings["watermaker"]["main"]["highPressurePump"]["temperature"] = hpTemp;
+  baseReadings["watermaker"]["main"]["preFilterPressure"] = preFilterPressure;
+  baseReadings["watermaker"]["main"]["postFilterPressure"] = postFilterPressure;
+  baseReadings["watermaker"]["main"]["preMembranePressure"] = postFilterPressure;
+  baseReadings["watermaker"]["main"]["postMembranePressure"] = postMembranePressure;
+  baseReadings["watermaker"]["main"]["productSalinity"] = tdi;
+  if(running){
+    baseReadings["watermaker"]["main"]["status"] = "RUNNING";
+  }else{
+    baseReadings["watermaker"]["main"]["status"] = "STOPPED";
+  }
 }
 
 void readTemperatures(){
@@ -64,6 +73,21 @@ void readTemperatures(){
   hpSensor.requestTemperaturesByIndex(0);
 }
 
+void runWatermaker(){
+  syslog.information.print("Running watermaker: ");
+  digitalWrite(ESP32_RELAY_PIN, HIGH);
+  digitalWrite(LED_BLUE, HIGH);
+  running=true;
+  syslog.information.println(running);
+}
+void stopWatermaker(){
+  syslog.information.print("Running watermaker: ");
+  digitalWrite(ESP32_RELAY_PIN, LOW);
+  digitalWrite(LED_BLUE, LOW);
+  running=false;
+  syslog.information.println(running);
+}
+
 // *****************************************************************************
 void setup()
 {
@@ -71,6 +95,12 @@ void setup()
   ArduinoOTA.setHostname(NODENAME);
   syslog.app=NODENAME;
   baseInit();
+
+  pinMode(LED_BLUE,OUTPUT);
+  //setup relay
+  pinMode(ESP32_RELAY_PIN, OUTPUT);
+
+  //setup temperature
   syslog.information.println("Configure temperature sensors..");
   boostSensor.begin();
   boostSensor.setWaitForConversion(false);
@@ -88,7 +118,7 @@ void loop()
     {
       wmLastTime=millis();
       readTemperatures();
-    
+      
       //update data
       syslog.information.println("Try boost temperature..");
       if(boostSensor.isConversionComplete()){
@@ -102,7 +132,14 @@ void loop()
         syslog.information.print("hpTemp Temp: ");
         syslog.information.println(hpTemp);
       }
-  }
+      setData();
+
+      if(running){
+        stopWatermaker();
+      }else{
+        runWatermaker();      
+      }
+    }
 
 }
 
