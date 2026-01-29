@@ -1,0 +1,44 @@
+SignalK Path Info
+
+All appended under 'vessels.[REGEXP]', aka 'self'
+
+Not all are implemented...
+
+{boardname} is your board hostname, defaults to 'main'
+Path 	                                        Description
+watermaker.{boardname}.board.firmwareVersion 	firmware version
+watermaker.{boardname}.board.hardwareVersion 	hardware version
+watermaker.{boardname}.board.hostname 	        local board hostname
+watermaker.{boardname}.board.name 	            User friendly name
+watermaker.{boardname}.board.uptime 	        controller uptime
+watermaker.{boardname}.board.useSsl 	        do we use ssl?
+watermaker.{boardname}.board.uuid 	            unique id of the board
+
+The rest of the data is located at watermaker.{boardname}.*:
+Path 	                                        Units 	Description
+watermaker.{boardname}.status 		                            Current status of watermaker
+watermaker.{boardname}.runResult 		                        Result from last run cycle
+watermaker.{boardname}.flushResult 		                        Result from last flush cycle
+watermaker.{boardname}.pickleResult 		                    Result from last pickle cycle
+watermaker.{boardname}.depickleResult 		                    Result from last depickle cycle
+watermaker.{boardname}.boostPump.temperature            K       Boost pump motor temperature
+watermaker.{boardname}.highPressurePump.temperature     K       High pressure pump motor temperature
+watermaker.{boardname}.waterTemperature 	            K 	    Source water temperature
+watermaker.{boardname}.productFlowrate 	                m³/s 	Product output flowrate
+watermaker.{boardname}.brineFlowrate 	                m³/s 	Brine output flowrate
+watermaker.{boardname}.totalFlowrate 	                m³/s 	Total output flowrate
+watermaker.{boardname}.volume 	                        m³ 	    Product output volume total (this cycle)
+watermaker.{boardname}.productSalinity 	                mg/L 	Product output salinity (PPM)
+watermaker.{boardname}.brineSalinity 	                mg/L 	Brine output salinity (PPM)
+watermaker.{boardname}.preFilterPressure 	            Pa 	    Pre-filter Pressure
+watermaker.{boardname}.postFilterPressure 	            Pa 	    Post-filter Pressure
+watermaker.{boardname}.preMembranePressure 	            Pa 	    Pre-membrane Pressure
+watermaker.{boardname}.postMembranePressure 	        Pa 	    Post-membrane Pressure
+watermaker.{boardname}.tankLevel 	                    ratio 	Tank level percentage
+watermaker.{boardname}.boostPumpOn 		                        Status of the boost pump
+watermaker.{boardname}.highPressurePumpOn 		                Status of the high pressure pump
+watermaker.{boardname}.diverterValveOpen 		                Status of the diverter valve
+watermaker.{boardname}.flushValveOpen 		                    Status of the flush valve
+watermaker.{boardname}.boostPump.coolingFanOn 		            Status of the boost pump cooling fan
+watermaker.{boardname}.highPressurePump.coolingFanOn 		    Status of the high pressure motor cooling fan
+
