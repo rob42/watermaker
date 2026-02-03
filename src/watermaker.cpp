@@ -23,7 +23,8 @@
 #define C_TO_K 273.15 //degrees C to K
 #define MV_TO_PPM 0.0023
 #define RELAY_PIN 21// turn watermaker on or off
-
+#define STARTUP_DELAY 1000*60
+#define RESTART_DELAY 1000*60
 #define LED_BLUE 8 // blue LED pin
 
 #include "watermaker.h"
@@ -34,6 +35,8 @@ OneWire oneWireHpTemp(HP_TEMP_PIN);
 DallasTemperature boostSensor(&oneWireBoostTemp);
 DallasTemperature hpSensor(&oneWireHpTemp);
 
+unsigned long startTime = 0;
+unsigned long stopTime = 0;
 unsigned long wmLastTime = 0;
 unsigned long wmTimerDelay = 2000;
 //in deg Kelvin
@@ -70,10 +73,13 @@ void setData()
   readings["watermaker"]["main"]["preMembranePressure"] = floor(postFilterPressure.getAverage()*MPA_TO_PA);
   readings["watermaker"]["main"]["postMembranePressure"] = floor(postMembranePressure.getAverage()*MPA_TO_PA);
   readings["watermaker"]["main"]["productSalinity"] = floor(tdi.getAverage());
+  readings["watermaker"]["main"]["runTime"] = floor((millis()-startTime)*.0001); //seconds
   if(running){
     readings["watermaker"]["main"]["status"] = "RUNNING";
+    readings["watermaker"]["main"]["runTime"] = floor((millis()-startTime)*.001); //seconds
   }else{
     readings["watermaker"]["main"]["status"] = "STOPPED";
+    readings["watermaker"]["main"]["runTime"] = floor((stopTime-startTime)*.001); //seconds
   }
 }
 
@@ -90,13 +96,6 @@ void updateTemperatures(){
   syslog.information.print("hpTemp Temp: ");
   syslog.information.println(hpTemp);
   
-}
-void runWatermaker(){
-  syslog.information.print("Running watermaker: ");
-  digitalWrite(RELAY_PIN, HIGH);
-  digitalWrite(LED_BLUE, HIGH);
-  running=true;
-  syslog.information.println(running);
 }
 
 void readPressures(){
@@ -122,12 +121,25 @@ void readPressures(){
 void readTdi(){
   tdi.addValue(analogReadMilliVolts(TDI_PIN))*MV_TO_PPM;
 }
+
+void runWatermaker(){
+  syslog.information.print("Running watermaker: ");
+  digitalWrite(RELAY_PIN, HIGH);
+  digitalWrite(LED_BLUE, HIGH);
+  running=true;
+  startTime = millis();
+  syslog.information.println(running);
+ 
+}
+
 void stopWatermaker(){
   syslog.information.print("Stopping watermaker: ");
   digitalWrite(RELAY_PIN, LOW);
   digitalWrite(LED_BLUE, LOW);
   running=false;
+  stopTime = millis();
   syslog.information.println(running);
+  
 }
 
 /*Make sure params are within safety limits*/
@@ -174,6 +186,7 @@ void checkSafe(){
 void setup()
 {
   // Initialize base subsystems (WiFi, OTA, WebServer, Zenoh, Syslog)
+  startTime = millis();
   ArduinoOTA.setHostname(NODENAME);
   syslog.app=NODENAME;
   baseInit();
@@ -188,6 +201,7 @@ void setup()
   boostSensor.setWaitForConversion(false);
   hpSensor.begin();
   hpSensor.setWaitForConversion(false);
+  runWatermaker();
 }
 
 // *****************************************************************************
@@ -210,9 +224,10 @@ void loop()
       
       setData();
       
-      if(running){
+      if(running && (millis()-startTime) > STARTUP_DELAY){
         checkSafe();
-      }else{
+      }
+      if(!running && (millis()-stopTime) > RESTART_DELAY){
         runWatermaker();      
       }
     }
