@@ -21,7 +21,7 @@
 #define MPA_TO_PSI 145.0377
 #define PSI_TO_MPA 0.006894757
 #define C_TO_K 273.15 //degrees C to K
-#define MV_TO_PPM 0.0023
+#define MV_TO_PPM 0.4347
 #define RELAY_PIN 21// turn watermaker on or off
 #define STARTUP_DELAY 1000*60
 #define RESTART_DELAY 1000*60
@@ -47,7 +47,7 @@ RunningAverage preFilterPressure(10); //output is 0.5-4.5V, voltage divider = 0.
 RunningAverage postFilterPressure(10);
 RunningAverage postMembranePressure(10); //output is 0.5-4.5V, voltage divider = 0.32-2.877V, so conv = (mV-320) * D_TO_HIGH_MPA
 //tdi avaeraged
-RunningAverage tdi(10); // in ppm. Sensor is 0-2.3V, 0-1000ppm, so conversion = mV * .0023
+RunningAverage tdi(10); // in ppm. Sensor is 0-2.3V, 0-1000ppm, so conversion = mV *.0023
 bool running = false;
 bool safe = false;
 // Set latest data (boost T, hp T, prefilter P, post filter P, post membrane P, tdi v )
@@ -119,7 +119,9 @@ void readPressures(){
 }
 
 void readTdi(){
-  tdi.addValue(analogReadMilliVolts(TDI_PIN))*MV_TO_PPM;
+  float tdiMv = analogReadMilliVolts(TDI_PIN);
+  syslog.information.printf("tdi = %f\n",tdiMv);
+  tdi.addValue(tdiMv*MV_TO_PPM);
 }
 
 void runWatermaker(){
