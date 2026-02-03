@@ -11,36 +11,80 @@ function getReadings(){
     if (this.readyState == 4 && this.status == 200) {
       var myObj = JSON.parse(this.responseText);
       console.log(myObj);
-      var running = myObj.running;
-      var startTime = myObj.startTime;
-      var stopTime = myObj.stopTime;
-      var productSalinity = myObj.tdi;
-      var boostTemperature = myObj.boostTemperature;
-      var hpTemperature = myObj.hpTemperature;
-      var preFilterPressure = myObj.preFilterPressure;
-      var postFilterPressure = myObj.postFilterPressure;
-      var preMembranePressure = myObj.preMembranePressure;
-      var postMembranePressure = myObj.postMembranePressure;
+      update(myObj);
+      // var running = myObj.running;
+      // var startTime = myObj.startTime;
+      // var stopTime = myObj.stopTime;
+      // var productSalinity = myObj.tdi;
+      // var boostTemperature = myObj.boostTemperature;
+      // var hpTemperature = myObj.hpTemperature;
+      // var preFilterPressure = myObj.preFilterPressure;
+      // var postFilterPressure = myObj.postFilterPressure;
+      // var preMembranePressure = myObj.preMembranePressure;
+      // var postMembranePressure = myObj.postMembranePressure;
 
-      labelRunning.textContent = running?'Yes':'No';
-      labelStartTime.textContent = new Date(startTime*1000).toLocaleString();
-      if(stopTime>0){
-       labelStopTime.textContent = new Date(stopTime*1000).toLocaleString();
-      }else{
-        labelStopTime.textContent = '-';
-      }
-      labelProductSalinity.textContent = productSalinity.toFixed(0);
-      labelBoostTemperature.textContent = (boostTemperature-273.15).toFixed(0);
-      labelHpTemperature.textContent = (hpTemperature-273.15).toFixed(0);
-      labelPreFilterPressure.textContent = preFilterPressure.toFixed(0);
-      labelPostFilterPressure.textContent = postFilterPressure.toFixed(0);
-      labelPreMembranePressure.textContent = preMembranePressure.toFixed(0);
-      labelPostMembranePressure.textContent = postMembranePressure.toFixed(0);
+      // labelRunning.textContent = running?'Yes':'No';
+      // labelStartTime.textContent = new Date(startTime*1000).toLocaleString();
+      // if(stopTime>0){
+      //  labelStopTime.textContent = new Date(stopTime*1000).toLocaleString();
+      // }else{
+      //   labelStopTime.textContent = '-';
+      // }
+      // labelProductSalinity.textContent = productSalinity.toFixed(0);
+      // labelBoostTemperature.textContent = (boostTemperature-273.15).toFixed(0);
+      // labelHpTemperature.textContent = (hpTemperature-273.15).toFixed(0);
+      // labelPreFilterPressure.textContent = preFilterPressure.toFixed(0);
+      // labelPostFilterPressure.textContent = postFilterPressure.toFixed(0);
+      // labelPreMembranePressure.textContent = preMembranePressure.toFixed(0);
+      // labelPostMembranePressure.textContent = postMembranePressure.toFixed(0);
       
     }
   }; 
   xhr.open("GET", "/readings", true);
   xhr.send();
+}
+
+function update(myObj){
+  var running = myObj.running;
+  var startTime = myObj.startTime;
+  var stopTime = myObj.stopTime;
+  var productSalinity = myObj.tdi;
+  var boostTemperature = myObj.boostTemperature;
+  var hpTemperature = myObj.hpTemperature;
+  var preFilterPressure = myObj.preFilterPressure;
+  var postFilterPressure = myObj.postFilterPressure;
+  var preMembranePressure = myObj.preMembranePressure;
+  var postMembranePressure = myObj.postMembranePressure;
+
+  labelRunning.textContent = running?'Yes':'No';
+  labelStartTime.textContent = new Date(startTime*1000).toLocaleString();
+  if(stopTime>0){
+    labelStopTime.textContent = new Date(stopTime*1000).toLocaleString();
+  }else{
+    labelStopTime.textContent = '-';
+  }
+  labelProductSalinity.textContent = productSalinity.toFixed(0);
+  checkAlarm(divProductSalinity,productSalinity, 500);
+  labelBoostTemperature.textContent = (boostTemperature-273.15).toFixed(0);
+  checkAlarm(divBoostTemperature,boostTemperature, (273.15+90));
+  labelHpTemperature.textContent = (hpTemperature-273.15).toFixed(0);
+  checkAlarm(divHpTemperature,hpTemperature,(273.15+90));
+  labelPreFilterPressure.textContent = preFilterPressure.toFixed(0);
+  checkAlarm(divPreFilterPressure,preFilterPressure, 30, 10);
+  labelPostFilterPressure.textContent = postFilterPressure.toFixed(0);
+  checkAlarm(divPostFilterPressure,postFilterPressure, 30, 10);
+  labelPreMembranePressure.textContent = preMembranePressure.toFixed(0);
+  checkAlarm(divPreMembranePressure,preMembranePressure, 30, 10);
+  labelPostMembranePressure.textContent = postMembranePressure.toFixed(0);
+  checkAlarm(divPostMembranePressure,postMembranePressure, 850, 750);
+}
+
+function checkAlarm(label, value, upperLimit, lowerLimit){
+  if(value>upperLimit ||(lowerLimit!=null && value<lowerLimit)){
+    label.style.backgroundColor = 'red';
+  }else{
+    label.style.backgroundColor = 'green';
+       }
 }
 
 if (!!window.EventSource) {
@@ -64,31 +108,37 @@ if (!!window.EventSource) {
     console.log("new_readings", e.data);
     var myObj = JSON.parse(e.data);
     console.log(myObj);
-      var running = myObj.running;
-      var startTime = myObj.startTime;
-      var stopTime = myObj.stopTime;
-      var productSalinity = myObj.tdi;
-      var boostTemperature = myObj.boostTemperature;
-      var hpTemperature = myObj.hpTemperature;
-      var preFilterPressure = myObj.preFilterPressure;
-      var postFilterPressure = myObj.postFilterPressure;
-      var preMembranePressure = myObj.preMembranePressure;
-      var postMembranePressure = myObj.postMembranePressure;
+    update(myObj);
+      // var running = myObj.running;
+      // var startTime = myObj.startTime;
+      // var stopTime = myObj.stopTime;
+      // var productSalinity = myObj.tdi;
+      // var boostTemperature = myObj.boostTemperature;
+      // var hpTemperature = myObj.hpTemperature;
+      // var preFilterPressure = myObj.preFilterPressure;
+      // var postFilterPressure = myObj.postFilterPressure;
+      // var preMembranePressure = myObj.preMembranePressure;
+      // var postMembranePressure = myObj.postMembranePressure;
 
-      labelRunning.textContent = running?'Yes':'No';
-      labelStartTime.textContent = new Date(startTime*1000).toLocaleString();
-      if(stopTime>0){
-       labelStopTime.textContent = new Date(stopTime*1000).toLocaleString();
-      }else{
-        labelStopTime.textContent = '-';
-      }
-      labelProductSalinity.textContent = productSalinity.toFixed(0);
-      labelBoostTemperature.textContent = (boostTemperature-273.15).toFixed(0);
-      labelHpTemperature.textContent = (hpTemperature-273.15).toFixed(0);
-      labelPreFilterPressure.textContent = preFilterPressure.toFixed(0);
-      labelPostFilterPressure.textContent = postFilterPressure.toFixed(0);
-      labelPreMembranePressure.textContent = preMembranePressure.toFixed(0);
-      labelPostMembranePressure.textContent = postMembranePressure.toFixed(0);
+      // labelRunning.textContent = running?'Yes':'No';
+      // labelStartTime.textContent = new Date(startTime*1000).toLocaleString();
+      // if(stopTime>0){
+      //  labelStopTime.textContent = new Date(stopTime*1000).toLocaleString();
+      // }else{
+      //   labelStopTime.textContent = '-';
+      // }
+      // labelProductSalinity.textContent = productSalinity.toFixed(0);
+      // if(boostTemperature>280){
+      //   labelBoostTemperature.style.backgroundColor = 'red';
+      // }else{
+      //   labelBoostTemperature.style.backgroundColor = 'green';
+      // }
+      // labelBoostTemperature.textContent = (boostTemperature-273.15).toFixed(0);
+      // labelHpTemperature.textContent = (hpTemperature-273.15).toFixed(0);
+      // labelPreFilterPressure.textContent = preFilterPressure.toFixed(0);
+      // labelPostFilterPressure.textContent = postFilterPressure.toFixed(0);
+      // labelPreMembranePressure.textContent = preMembranePressure.toFixed(0);
+      // labelPostMembranePressure.textContent = postMembranePressure.toFixed(0);
     
   }, false);
 }
