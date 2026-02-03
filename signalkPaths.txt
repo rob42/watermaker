@@ -18,6 +18,8 @@ The rest of the data is located at watermaker.{boardname}.*:
 Path 	                                        Units 	Description
 watermaker.{boardname}.status 		                            Current status of watermaker
 watermaker.{boardname}.runTime                          s       Seconds since startup, or stopTime-startTime
+watermaker.{boardname}.starttime                        ms      Millisecs from epoch
+watermaker.{boardname}.stopTime                         ms      Millisecs from epoch
 watermaker.{boardname}.runResult 		                        Result from last run cycle
 watermaker.{boardname}.flushResult 		                        Result from last flush cycle
 watermaker.{boardname}.pickleResult 		                    Result from last pickle cycle

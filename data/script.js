@@ -1,78 +1,5 @@
 // Get current sensor readings when the page loads  
 window.addEventListener('load', getReadings);
-
-// Create AWA Gauge
-var gaugeAwa = new RadialGauge({
-  renderTo: 'gauge-awa',
-  width: 300,
-  height: 300,
-  units: "AWA",
-  minValue: 0,
-  maxValue: 360,
-  colorValueBoxRect: "#049faa",
-  colorValueBoxRectEnd: "#049faa",
-  colorValueBoxBackground: "#f1fbfc",
-  valueBox: false,
-  valueInt: 3,
-  valueDec: 0,
-  ticksAngle: 360,
-  startAngle: 180,
-  useMinPath: true,
-  majorTicks: [
-      "0",
-      "30",
-      "60",
-      "90",
-      "120",
-      "150",
-      "180",
-      "210",
-      "240",
-      "270",
-      "300",
-      "330",
-      ""
-  ],
-  minorTicks: 3,
-  strokeTicks: true,
-  highlights: [
-  	
-  	{
-          "from": 30,
-          "to": 40,
-          "color": "#ff8c1a"
-      },
-      {
-          "from": 40,
-          "to": 150,
-          "color": "#33cc33"
-      },
-       {
-          "from": 210,
-          "to": 320,
-          "color": "#e60000"
-      },
-       {
-          "from":320,
-          "to": 330,
-          "color": "#ff8c1a"
-      }
-      
-  ],
-  colorPlate: "#fff",
-  borderShadowWidth: 0,
-  borders: false,
-  needleType: "line",
-  colorNeedle: "#007F80",
-  colorNeedleEnd: "#007F80",
-  needleWidth: 2,
-  needleCircleSize: 3,
-  colorNeedleCircleOuter: "#007F80",
-  needleCircleOuter: true,
-  needleCircleInner: false,
-  animationDuration: 300,
-  animationRule: "linear"
-}).draw();
   
 
 var labelAws = document.getElementById('label-aws');
@@ -84,11 +11,31 @@ function getReadings(){
     if (this.readyState == 4 && this.status == 200) {
       var myObj = JSON.parse(this.responseText);
       console.log(myObj);
-      var awa = myObj.awa;
-      var aws = myObj.aws;
-      labelAws.textContent = aws.toFixed(1);
-      gaugeAwa.value = awa;
-      gaugeAwa.update({ valueText: myObj.awa, animationDuration: 300 });
+      var running = myObj.running;
+      var startTime = myObj.startTime;
+      var stopTime = myObj.stopTime;
+      var productSalinity = myObj.tdi;
+      var boostTemperature = myObj.boostTemperature;
+      var hpTemperature = myObj.hpTemperature;
+      var preFilterPressure = myObj.preFilterPressure;
+      var postFilterPressure = myObj.postFilterPressure;
+      var preMembranePressure = myObj.preMembranePressure;
+      var postMembranePressure = myObj.postMembranePressure;
+
+      labelRunning.textContent = running?'Yes':'No';
+      labelStartTime.textContent = new Date(startTime*1000).toLocaleString();
+      if(stopTime>0){
+       labelStopTime.textContent = new Date(stopTime*1000).toLocaleString();
+      }else{
+        labelStopTime.textContent = '-';
+      }
+      labelProductSalinity.textContent = productSalinity.toFixed(0);
+      labelBoostTemperature.textContent = (boostTemperature-273.15).toFixed(0);
+      labelHpTemperature.textContent = (hpTemperature-273.15).toFixed(0);
+      labelPreFilterPressure.textContent = preFilterPressure.toFixed(0);
+      labelPostFilterPressure.textContent = postFilterPressure.toFixed(0);
+      labelPreMembranePressure.textContent = preMembranePressure.toFixed(0);
+      labelPostMembranePressure.textContent = postMembranePressure.toFixed(0);
       
     }
   }; 
@@ -117,10 +64,31 @@ if (!!window.EventSource) {
     console.log("new_readings", e.data);
     var myObj = JSON.parse(e.data);
     console.log(myObj);
-    var aws = myObj.aws;
-    labelAws.textContent = aws.toFixed(1);
-    gaugeAwa.value = myObj.awa;
-    gaugeAwa.update({ valueText: myObj.awa, animationDuration: 300 })
+      var running = myObj.running;
+      var startTime = myObj.startTime;
+      var stopTime = myObj.stopTime;
+      var productSalinity = myObj.tdi;
+      var boostTemperature = myObj.boostTemperature;
+      var hpTemperature = myObj.hpTemperature;
+      var preFilterPressure = myObj.preFilterPressure;
+      var postFilterPressure = myObj.postFilterPressure;
+      var preMembranePressure = myObj.preMembranePressure;
+      var postMembranePressure = myObj.postMembranePressure;
+
+      labelRunning.textContent = running?'Yes':'No';
+      labelStartTime.textContent = new Date(startTime*1000).toLocaleString();
+      if(stopTime>0){
+       labelStopTime.textContent = new Date(stopTime*1000).toLocaleString();
+      }else{
+        labelStopTime.textContent = '-';
+      }
+      labelProductSalinity.textContent = productSalinity.toFixed(0);
+      labelBoostTemperature.textContent = (boostTemperature-273.15).toFixed(0);
+      labelHpTemperature.textContent = (hpTemperature-273.15).toFixed(0);
+      labelPreFilterPressure.textContent = preFilterPressure.toFixed(0);
+      labelPostFilterPressure.textContent = postFilterPressure.toFixed(0);
+      labelPreMembranePressure.textContent = preMembranePressure.toFixed(0);
+      labelPostMembranePressure.textContent = postMembranePressure.toFixed(0);
     
   }, false);
 }

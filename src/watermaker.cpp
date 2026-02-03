@@ -23,8 +23,8 @@
 #define C_TO_K 273.15 //degrees C to K
 #define MV_TO_PPM 0.4347
 #define RELAY_PIN 21// turn watermaker on or off
-#define STARTUP_DELAY 1000*60
-#define RESTART_DELAY 1000*60
+#define STARTUP_DELAY 60 //secs
+#define RESTART_DELAY 60 //secs
 #define LED_BLUE 8 // blue LED pin
 
 #include "watermaker.h"
@@ -53,16 +53,17 @@ bool safe = false;
 // Set latest data (boost T, hp T, prefilter P, post filter P, post membrane P, tdi v )
 void setData()
 {
-
   // also expose to webserver sensor map 
-  
   webServerNode.setSensorData("boostTemperature", boostTemp);
   webServerNode.setSensorData("hpTemperature", hpTemp);
   webServerNode.setSensorData("preFilterPressure", preFilterPressure.getAverage() * MPA_TO_PSI);
   webServerNode.setSensorData("postFilterPressure", postFilterPressure.getAverage() * MPA_TO_PSI);
+  webServerNode.setSensorData("preMembranePressure", preFilterPressure.getAverage() * MPA_TO_PSI);
   webServerNode.setSensorData("postMembranePressure", postMembranePressure.getAverage() * MPA_TO_PSI);
   webServerNode.setSensorData("tdi", tdi.getAverage());
   webServerNode.setSensorData("running", running);
+  webServerNode.setSensorData("startTime", startTime); //secs
+  webServerNode.setSensorData("stopTime", stopTime); //secs
 
   //setup values for zenoh
   
@@ -73,13 +74,14 @@ void setData()
   readings["watermaker"]["main"]["preMembranePressure"] = floor(postFilterPressure.getAverage()*MPA_TO_PA);
   readings["watermaker"]["main"]["postMembranePressure"] = floor(postMembranePressure.getAverage()*MPA_TO_PA);
   readings["watermaker"]["main"]["productSalinity"] = floor(tdi.getAverage());
-  readings["watermaker"]["main"]["runTime"] = floor((millis()-startTime)*.0001); //seconds
+  readings["watermaker"]["main"]["startTime"]= startTime * 1000;
+  readings["watermaker"]["main"]["stopTime"] = stopTime * 1000;
   if(running){
     readings["watermaker"]["main"]["status"] = "RUNNING";
-    readings["watermaker"]["main"]["runTime"] = floor((millis()-startTime)*.001); //seconds
+    readings["watermaker"]["main"]["runTime"] = floor((rtc.getLocalEpoch()-startTime)); //seconds
   }else{
     readings["watermaker"]["main"]["status"] = "STOPPED";
-    readings["watermaker"]["main"]["runTime"] = floor((stopTime-startTime)*.001); //seconds
+    readings["watermaker"]["main"]["runTime"] = floor((stopTime-startTime)); //seconds
   }
 }
 
@@ -129,7 +131,8 @@ void runWatermaker(){
   digitalWrite(RELAY_PIN, HIGH);
   digitalWrite(LED_BLUE, HIGH);
   running=true;
-  startTime = millis();
+  startTime = rtc.getLocalEpoch();
+  stopTime = 0;
   syslog.information.println(running);
  
 }
@@ -139,7 +142,7 @@ void stopWatermaker(){
   digitalWrite(RELAY_PIN, LOW);
   digitalWrite(LED_BLUE, LOW);
   running=false;
-  stopTime = millis();
+  stopTime = rtc.getLocalEpoch();
   syslog.information.println(running);
   
 }
@@ -188,7 +191,7 @@ void checkSafe(){
 void setup()
 {
   // Initialize base subsystems (WiFi, OTA, WebServer, Zenoh, Syslog)
-  startTime = millis();
+  startTime = rtc.getLocalEpoch();
   ArduinoOTA.setHostname(NODENAME);
   syslog.app=NODENAME;
   baseInit();
@@ -226,10 +229,10 @@ void loop()
       
       setData();
       
-      if(running && (millis()-startTime) > STARTUP_DELAY){
+      if(running && (rtc.getLocalEpoch()-startTime) > STARTUP_DELAY){
         checkSafe();
       }
-      if(!running && (millis()-stopTime) > RESTART_DELAY){
+      if(!running && (rtc.getLocalEpoch()-stopTime) > RESTART_DELAY){
         runWatermaker();      
       }
     }
