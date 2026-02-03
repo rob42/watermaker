@@ -4,6 +4,7 @@
 #include <zenohBase.h>
 #include <OneWire.h>
 #include <DallasTemperature.h>
+#include <RunningAverage.h>
 
 // remote syslog server for logs
 #define RSYSLOG_IP "192.168.1.125"
