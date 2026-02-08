@@ -12,32 +12,6 @@ function getReadings(){
       var myObj = JSON.parse(this.responseText);
       console.log(myObj);
       update(myObj);
-      // var running = myObj.running;
-      // var startTime = myObj.startTime;
-      // var stopTime = myObj.stopTime;
-      // var productSalinity = myObj.tdi;
-      // var boostTemperature = myObj.boostTemperature;
-      // var hpTemperature = myObj.hpTemperature;
-      // var preFilterPressure = myObj.preFilterPressure;
-      // var postFilterPressure = myObj.postFilterPressure;
-      // var preMembranePressure = myObj.preMembranePressure;
-      // var postMembranePressure = myObj.postMembranePressure;
-
-      // labelRunning.textContent = running?'Yes':'No';
-      // labelStartTime.textContent = new Date(startTime*1000).toLocaleString();
-      // if(stopTime>0){
-      //  labelStopTime.textContent = new Date(stopTime*1000).toLocaleString();
-      // }else{
-      //   labelStopTime.textContent = '-';
-      // }
-      // labelProductSalinity.textContent = productSalinity.toFixed(0);
-      // labelBoostTemperature.textContent = (boostTemperature-273.15).toFixed(0);
-      // labelHpTemperature.textContent = (hpTemperature-273.15).toFixed(0);
-      // labelPreFilterPressure.textContent = preFilterPressure.toFixed(0);
-      // labelPostFilterPressure.textContent = postFilterPressure.toFixed(0);
-      // labelPreMembranePressure.textContent = preMembranePressure.toFixed(0);
-      // labelPostMembranePressure.textContent = postMembranePressure.toFixed(0);
-      
     }
   }; 
   xhr.open("GET", "/readings", true);
@@ -109,36 +83,5 @@ if (!!window.EventSource) {
     var myObj = JSON.parse(e.data);
     console.log(myObj);
     update(myObj);
-      // var running = myObj.running;
-      // var startTime = myObj.startTime;
-      // var stopTime = myObj.stopTime;
-      // var productSalinity = myObj.tdi;
-      // var boostTemperature = myObj.boostTemperature;
-      // var hpTemperature = myObj.hpTemperature;
-      // var preFilterPressure = myObj.preFilterPressure;
-      // var postFilterPressure = myObj.postFilterPressure;
-      // var preMembranePressure = myObj.preMembranePressure;
-      // var postMembranePressure = myObj.postMembranePressure;
-
-      // labelRunning.textContent = running?'Yes':'No';
-      // labelStartTime.textContent = new Date(startTime*1000).toLocaleString();
-      // if(stopTime>0){
-      //  labelStopTime.textContent = new Date(stopTime*1000).toLocaleString();
-      // }else{
-      //   labelStopTime.textContent = '-';
-      // }
-      // labelProductSalinity.textContent = productSalinity.toFixed(0);
-      // if(boostTemperature>280){
-      //   labelBoostTemperature.style.backgroundColor = 'red';
-      // }else{
-      //   labelBoostTemperature.style.backgroundColor = 'green';
-      // }
-      // labelBoostTemperature.textContent = (boostTemperature-273.15).toFixed(0);
-      // labelHpTemperature.textContent = (hpTemperature-273.15).toFixed(0);
-      // labelPreFilterPressure.textContent = preFilterPressure.toFixed(0);
-      // labelPostFilterPressure.textContent = postFilterPressure.toFixed(0);
-      // labelPreMembranePressure.textContent = preMembranePressure.toFixed(0);
-      // labelPostMembranePressure.textContent = postMembranePressure.toFixed(0);
-    
   }, false);
 }
