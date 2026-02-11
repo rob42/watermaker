@@ -67,22 +67,22 @@ void setData()
 
   //setup values for zenoh
   
-  readings["watermaker"]["main"]["boostPump"]["temperature"] = floor(boostTemp);
-  readings["watermaker"]["main"]["highPressurePump"]["temperature"] = floor(hpTemp);
-  readings["watermaker"]["main"]["preFilterPressure"] = floor(preFilterPressure.getAverage()*MPA_TO_PA);
-  readings["watermaker"]["main"]["postFilterPressure"] = floor(postFilterPressure.getAverage()*MPA_TO_PA);
-  readings["watermaker"]["main"]["preMembranePressure"] = floor(postFilterPressure.getAverage()*MPA_TO_PA);
-  readings["watermaker"]["main"]["postMembranePressure"] = floor(postMembranePressure.getAverage()*MPA_TO_PA);
-  readings["watermaker"]["main"]["productSalinity"] = floor(tdi.getAverage());
-  readings["watermaker"]["main"]["startTime"]= startTime * 1000;
-  readings["watermaker"]["main"]["stopTime"] = stopTime * 1000;
+  readings[KEY_WATERMAKER_MAIN_BOOSTPUMP_TEMPERATURE] = floor(boostTemp);
+  readings[KEY_WATERMAKER_MAIN_HIGHPRESSUREPUMP_TEMPERATURE ] = floor(hpTemp);
+  readings[KEY_WATERMAKER_MAIN_PREFILTERPRESSURE] = floor(preFilterPressure.getAverage()*MPA_TO_PA);
+  readings[KEY_WATERMAKER_MAIN_POSTFILTERPRESSURE] = floor(postFilterPressure.getAverage()*MPA_TO_PA);
+  readings[KEY_WATERMAKER_MAIN_PREMEMBRANEPRESSURE] = floor(postFilterPressure.getAverage()*MPA_TO_PA);
+  readings[KEY_WATERMAKER_MAIN_POSTMEMBRANEPRESSURE] = floor(postMembranePressure.getAverage()*MPA_TO_PA);
+  readings[KEY_WATERMAKER_MAIN_PRODUCTSALINITY] = floor(tdi.getAverage());
+  readings[KEY_WATERMAKER_MAIN_STARTTIME] = startTime * 1000;
+  readings[KEY_WATERMAKER_MAIN_STOPTIME] =  stopTime * 1000;
   if(running){
-    readings["watermaker"]["main"]["status"] = "RUNNING";
-    readings["watermaker"]["main"]["runTime"] = floor((rtc.getLocalEpoch()-startTime)); //seconds
-  }else{
-    readings["watermaker"]["main"]["status"] = "STOPPED";
-    readings["watermaker"]["main"]["runTime"] = floor((stopTime-startTime)); //seconds
-  }
+    readings[KEY_WATERMAKER_MAIN_STATUS] =  "RUNNING";
+    readings[KEY_WATERMAKER_MAIN_RUNTIME]  = floor((rtc.getLocalEpoch()-startTime)); //seconds
+  }else{     
+    readings[KEY_WATERMAKER_MAIN_STATUS] =  "STOPPED";
+    readings[KEY_WATERMAKER_MAIN_RUNTIME]  = floor((stopTime-startTime)); //seconds
+  }        
 }
 
 void updateTemperatures(){
