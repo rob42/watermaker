@@ -224,9 +224,9 @@ void setup()
 {
   // Initialize base subsystems (WiFi, OTA, WebServer, Zenoh, Syslog)
   startTime = rtc.getLocalEpoch();
-  ArduinoOTA.setHostname(NODENAME);
+
   syslog.app = NODENAME;
-  baseInit();
+  baseInit(NODENAME, RSYSLOG_IP, PicoSyslog::LogLevel::debug );
 
   pinMode(LED_BLUE, OUTPUT);
   // setup relay
